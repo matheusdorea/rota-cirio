@@ -23,6 +23,11 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     rotaSelecionada = widget.rotaInicial;
+
+    if (widget.rotaInicial != SelectedRoutes.user) {
+    ultimaRotaPrincipal = widget.rotaInicial;
+    }
+
     _carregarLocalizacao();
   }
 
@@ -62,115 +67,120 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rota - Círio de Nazaré'),
-        backgroundColor: const Color.fromARGB(166, 98, 0, 255),
+        backgroundColor: Colors.blue[900],
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: Column(
-        children: [
-          // Botões de seleção de rota
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _botaoRota('Círio', SelectedRoutes.cirio),
-                _botaoRota('Trasladação', SelectedRoutes.trasladacao),
-                _botaoRota('Ir ao início', SelectedRoutes.user),
-              ],
-            ),
+
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.blue[900],
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.blue[200],
+        currentIndex: rotaSelecionada == SelectedRoutes.cirio
+            ? 0
+            : rotaSelecionada == SelectedRoutes.trasladacao
+                ? 1
+                : 2,
+        onTap: (index) {
+          final rotas = [
+            SelectedRoutes.cirio,
+            SelectedRoutes.trasladacao,
+            SelectedRoutes.user,
+          ];
+          setState(() {
+            if (rotas[index] != SelectedRoutes.user) {
+              ultimaRotaPrincipal = rotas[index];
+            }
+            rotaSelecionada = rotas[index];
+          });
+          _atualizarRotaUsuario();
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.directions_walk),
+            label: 'Círio',
           ),
-
-          // Mapa
-          Expanded(
-            child: FlutterMap(
-              options: MapOptions(
-                initialCenter: userLocation ?? pontoInicioCirio,
-                initialZoom: 14,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.cesupa.cirio_nazare',
-                ),
-
-                // Linha da rota
-                PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: rotaAtual,
-                      strokeWidth: 4.0,
-                      color: Colors.blue,
-                    ),
-                  ],
-                ),
-
-                // Marcadores
-                MarkerLayer(
-                  markers: [
-                    if (rotaAtual.isNotEmpty)
-                      Marker(
-                        point: rotaAtual.last,
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 40,
-                        ),
-                      ),
-
-                      if (rotaAtual.isNotEmpty && rotaSelecionada != SelectedRoutes.user)
-                      Marker(
-                        point: rotaAtual.first,
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.church,
-                          color: Colors.green,
-                          size: 40,
-                        ),
-                      ),
-                    // Localização do usuário
-                    if (userLocation != null)
-                      Marker(
-                        point: userLocation!,
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.my_location,
-                          color: Colors.blue,
-                          size: 40,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.directions_walk),
+            label: 'Trasladação',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.my_location),
+            label: 'Ir ao início',
           ),
         ],
       ),
-    );
-  }
 
-  Widget _botaoRota(String label, SelectedRoutes valor) {
-    final selecionado = rotaSelecionada == valor;
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: selecionado
-            ? const Color.fromARGB(166, 98, 0, 255)
-            : const Color.fromARGB(255, 178, 149, 211),
-        foregroundColor: selecionado ? Colors.white : Colors.black,
+      body: FlutterMap(
+        options: MapOptions(
+          initialCenter: userLocation ?? pontoInicioCirio,
+          initialZoom: 14,
+        ),
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'com.cesupa.cirio_nazare',
+          ),
+
+          // Linha da rota
+          PolylineLayer(
+            polylines: [
+              Polyline(
+                points: rotaAtual,
+                strokeWidth: 4.0,
+                color: Colors.blue,
+              ),
+            ],
+          ),
+
+          // Marcadores
+          MarkerLayer(
+            markers: [
+              // Ponto final
+              if (rotaAtual.isNotEmpty)
+                Marker(
+                  point: rotaAtual.last,
+                  width: 40,
+                  height: 40,
+                  child: const Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                    size: 40,
+                  ),
+                ),
+
+              // Ponto inicial (igreja) — só nas rotas fixas
+              if (rotaAtual.isNotEmpty && rotaSelecionada != SelectedRoutes.user)
+                Marker(
+                  point: rotaAtual.first,
+                  width: 40,
+                  height: 40,
+                  child: const Icon(
+                    Icons.church,
+                    color: Colors.green,
+                    size: 40,
+                  ),
+                ),
+
+              // Localização do usuário
+              if (userLocation != null)
+                Marker(
+                  point: userLocation!,
+                  width: 40,
+                  height: 40,
+                  child: const Icon(
+                    Icons.my_location,
+                    color: Colors.blue,
+                    size: 40,
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
-      onPressed: () {
-        setState(() {
-          if (valor != SelectedRoutes.user) {
-            ultimaRotaPrincipal = valor; 
-          }
-          rotaSelecionada = valor;
-        });
-        _atualizarRotaUsuario();
-      },
-      child: Text(label),
     );
   }
 }

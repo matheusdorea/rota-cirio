@@ -1,7 +1,6 @@
 import 'package:latlong2/latlong.dart';
 
 // Rota do Círio de Nazaré (principais pontos do trajeto)
-
 final List<LatLng> rotaTrasladacao = [
   LatLng(-1.4522085894354204, -48.481985359765176), // Basílica de Nazaré
   LatLng(-1.452199827250509, -48.48439573625001),
