@@ -128,20 +128,6 @@ class _MapScreenState extends State<MapScreen> {
                           size: 40,
                         ),
                       ),
-
-                      if (rotaAtual.isNotEmpty && rotaSelecionada == SelectedRoutes.user)
-                      Marker(
-                        point: rotaAtual.first,
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.push_pin_outlined,
-                          color: Colors.green,
-                          size: 40,
-                        ),
-                      ),
-
-
                     // Localização do usuário
                     if (userLocation != null)
                       Marker(
