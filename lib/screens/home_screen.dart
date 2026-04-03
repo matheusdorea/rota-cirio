@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/enum/selected_routes.dart';
 import 'map_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -45,7 +46,7 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.directions_walk,
                 label: 'Rota do Círio',
                 descricao: 'Catedral da Sé → Basílica de Nazaré',
-                rota: 'cirio',
+                rota: SelectedRoutes.cirio,
               ),
               const SizedBox(height: 16),
               _botaoRota(
@@ -53,7 +54,7 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.directions_walk,
                 label: 'Rota da Trasladação',
                 descricao: 'Basílica de Nazaré → Catedral da Sé',
-                rota: 'trasladacao',
+                rota: SelectedRoutes.trasladacao,
               ),
               const SizedBox(height: 16),
               _botaoRota(
@@ -61,7 +62,7 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.my_location,
                 label: 'Ir ao ponto inicial',
                 descricao: 'Sua localização → Basílica de Nazaré',
-                rota: 'usuario',
+                rota: SelectedRoutes.user,
               ),
             ],
           ),
@@ -75,7 +76,7 @@ class HomeScreen extends StatelessWidget {
     required IconData icon,
     required String label,
     required String descricao,
-    required String rota,
+    required SelectedRoutes rota,
   }) {
     return SizedBox(
       width: double.infinity,

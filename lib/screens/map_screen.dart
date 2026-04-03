@@ -6,14 +6,15 @@ import '../data/routes_data.dart';
 import '../services/location_service.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final SelectedRoutes rotaInicial;
+  const MapScreen({super.key, required this.rotaInicial});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
-  SelectedRoutes rotaSelecionada = SelectedRoutes.cirio;
+  late SelectedRoutes rotaSelecionada;
   SelectedRoutes ultimaRotaPrincipal = SelectedRoutes.cirio;
   LatLng? userLocation;
   List<LatLng> rotaUsuario = [];
@@ -21,6 +22,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    rotaSelecionada = widget.rotaInicial;
     _carregarLocalizacao();
   }
 
