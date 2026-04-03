@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/enum/selected_routes.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../data/routes_data.dart';
@@ -12,7 +13,8 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  String rotaSelecionada = 'cirio'; // 'cirio', 'trasladacao', 'usuario'
+  SelectedRoutes rotaSelecionada = SelectedRoutes.cirio;
+  SelectedRoutes ultimaRotaPrincipal = SelectedRoutes.cirio;
   LatLng? userLocation;
   List<LatLng> rotaUsuario = [];
 
@@ -25,20 +27,28 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _carregarLocalizacao() async {
     final location = await LocationService.getCurrentLocation();
     if (location != null) {
-      setState(() {
-        userLocation = location;
-        // Rota simples do usuário até o ponto inicial (linha reta)
-        // Idealmente usar uma API de rotas aqui
-        rotaUsuario = [location, pontoInicioCirio];
-      });
+      setState(() => userLocation = location);
+      _atualizarRotaUsuario();
     }
+  }
+
+  void _atualizarRotaUsuario() {
+    if (userLocation == null) return;
+
+    setState(() {
+      if (ultimaRotaPrincipal == SelectedRoutes.cirio) {
+        rotaUsuario = [userLocation!, pontoInicioCirio];
+      } else {
+        rotaUsuario = [userLocation!, pontoInicioTransladacao];
+      }
+    });
   }
 
   List<LatLng> get rotaAtual {
     switch (rotaSelecionada) {
-      case 'trasladacao':
+      case SelectedRoutes.trasladacao:
         return rotaTrasladacao;
-      case 'usuario':
+      case SelectedRoutes.user:
         return rotaUsuario;
       default:
         return rotaCirio;
@@ -49,8 +59,8 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Círio de Nazaré'),
-        backgroundColor: Colors.blue[800],
+        title: const Text('Rota - Círio de Nazaré'),
+        backgroundColor: const Color.fromARGB(166, 98, 0, 255),
         foregroundColor: Colors.white,
       ),
       body: Column(
@@ -61,9 +71,9 @@ class _MapScreenState extends State<MapScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _botaoRota('Círio', 'cirio'),
-                _botaoRota('Trasladação', 'trasladacao'),
-                _botaoRota('Ir ao início', 'usuario'),
+                _botaoRota('Círio', SelectedRoutes.cirio),
+                _botaoRota('Trasladação', SelectedRoutes.trasladacao),
+                _botaoRota('Ir ao início', SelectedRoutes.user),
               ],
             ),
           ),
@@ -72,11 +82,10 @@ class _MapScreenState extends State<MapScreen> {
           Expanded(
             child: FlutterMap(
               options: MapOptions(
-                initialCenter: pontoInicioCirio,
+                initialCenter: userLocation ?? pontoInicioCirio,
                 initialZoom: 14,
               ),
               children: [
-                // Camada do mapa (OpenStreetMap, gratuito)
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.cesupa.cirio_nazare',
@@ -96,17 +105,42 @@ class _MapScreenState extends State<MapScreen> {
                 // Marcadores
                 MarkerLayer(
                   markers: [
-                    // Ponto inicial fixo
-                    Marker(
-                      point: pontoInicioCirio,
-                      width: 40,
-                      height: 40,
-                      child: const Icon(
-                        Icons.location_on,
-                        color: Colors.red,
-                        size: 40,
+                    if (rotaAtual.isNotEmpty)
+                      Marker(
+                        point: rotaAtual.last,
+                        width: 40,
+                        height: 40,
+                        child: const Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                          size: 40,
+                        ),
                       ),
-                    ),
+
+                      if (rotaAtual.isNotEmpty && rotaSelecionada != SelectedRoutes.user)
+                      Marker(
+                        point: rotaAtual.first,
+                        width: 40,
+                        height: 40,
+                        child: const Icon(
+                          Icons.church,
+                          color: Colors.green,
+                          size: 40,
+                        ),
+                      ),
+
+                      if (rotaAtual.isNotEmpty && rotaSelecionada == SelectedRoutes.user)
+                      Marker(
+                        point: rotaAtual.first,
+                        width: 40,
+                        height: 40,
+                        child: const Icon(
+                          Icons.push_pin_outlined,
+                          color: Colors.green,
+                          size: 40,
+                        ),
+                      ),
+
 
                     // Localização do usuário
                     if (userLocation != null)
@@ -130,14 +164,24 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _botaoRota(String label, String valor) {
+  Widget _botaoRota(String label, SelectedRoutes valor) {
     final selecionado = rotaSelecionada == valor;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: selecionado ? Colors.blue[800] : Colors.grey[300],
+        backgroundColor: selecionado
+            ? const Color.fromARGB(166, 98, 0, 255)
+            : const Color.fromARGB(255, 178, 149, 211),
         foregroundColor: selecionado ? Colors.white : Colors.black,
       ),
-      onPressed: () => setState(() => rotaSelecionada = valor),
+      onPressed: () {
+        setState(() {
+          if (valor != SelectedRoutes.user) {
+            ultimaRotaPrincipal = valor; 
+          }
+          rotaSelecionada = valor;
+        });
+        _atualizarRotaUsuario();
+      },
       child: Text(label),
     );
   }
