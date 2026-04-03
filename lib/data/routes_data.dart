@@ -1,11 +1,8 @@
 import 'package:latlong2/latlong.dart';
 
-// Ponto inicial do Círio — Basílica de Nazaré
-const LatLng pontoInicioCirio = LatLng(-1.4521609361596843, -48.482147786233604);
-const LatLng pontoInicioTransladacao = LatLng(-1.4559613196984862, -48.50454207832931);
-
 // Rota do Círio de Nazaré (principais pontos do trajeto)
-final List<LatLng> rotaCirio = [
+
+final List<LatLng> rotaTrasladacao = [
   LatLng(-1.4522085894354204, -48.481985359765176), // Basílica de Nazaré
   LatLng(-1.452199827250509, -48.48439573625001),
   LatLng(-1.452203299302111, -48.48604032933419),
@@ -25,7 +22,7 @@ final List<LatLng> rotaCirio = [
 ];
 
 // Rota da Trasladação
-final List<LatLng> rotaTrasladacao = [
+final List<LatLng> rotaCirio = [
   LatLng(-1.4559613196984862, -48.50454207832931), // Catedral Metropolitana de Belém
   LatLng(-1.4555757839381003, -48.5046297283757),
   LatLng(-1.4552866320745679, -48.50446319328756),
@@ -41,5 +38,10 @@ final List<LatLng> rotaTrasladacao = [
   LatLng(-1.453894401385481, -48.49252643288029),
   LatLng(-1.452203299302111, -48.48604032933419),
   LatLng(-1.452199827250509, -48.48439573625001),
+  
   LatLng(-1.4522085894354204, -48.481985359765176), // Basílica de Nazaré
 ];
+
+// Ponto inicial do Círio — Basílica de Nazaré
+final LatLng pontoInicioCirio = rotaCirio[0];
+final LatLng pontoInicioTransladacao = rotaTrasladacao[0];
